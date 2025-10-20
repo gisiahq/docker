@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+echo "Starging Gitaly..."
+
+/gisia/coms/bin/gitalys/gitaly serve  /gisia/config/coms/gitaly/gitaly-0.praefect.toml

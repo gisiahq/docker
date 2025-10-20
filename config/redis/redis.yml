@@ -1,0 +1,7 @@
+---
+production:
+  cache: redis://redis:6379/0
+  rate_limiting: redis://redis:6379/1
+  repository_cache: redis://redis:6379/2
+  sessions: redis://redis:6379/3
+  shared_state: redis://redis:6379/4

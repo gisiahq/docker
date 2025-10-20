@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+
+SOCKET="/services/sockets/gisia.socket"
+TIMEOUT=30
+WAITED=0
+
+echo "Waiting for Gisia Rails..."
+
+while [ ! -S "$SOCKET" ]; do
+  if [ "$WAITED" -ge "$TIMEOUT" ]; then
+    echo "Timeout: $SOCKET not found after $TIMEOUT seconds."
+    exit 1
+  fi
+  sleep 2
+  WAITED=$((WAITED + 1))
+done
+
+echo "Gisia Rails found. Starting workhorse..."
+
+/gisia/coms/bin/gitlab-workhorse -authSocket /services/sockets/gisia.socket -documentRoot /rails/public -secretPath /rails/.gitlab_workhorse_secret -config /gisia/config/coms/workhorse/config.toml -listenAddr 0.0.0.0:8080 -logFormat json

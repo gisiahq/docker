@@ -1,0 +1,79 @@
+# Example Gitaly configuration file
+
+socket_path = "/services/sockets/gitaly-praefect-0.socket"
+
+# The directory where Gitaly's executables are stored
+bin_dir = "/gisia/coms/bin/gitalys"
+# The directory where Gitaly creates all data required at runtime.
+runtime_dir = "/services/gitaly/runtime"
+
+# # Optional: listen on a TCP socket. This is insecure (no authentication)
+# listen_addr = "127.0.0.1:9999"
+# tls_listen_addr = "127.0.0.1:8888
+
+# # Optional: export metrics via Prometheus
+#prometheus_listen_addr = "127.0.0.1:9236"
+
+# # Optional: authenticate Gitaly requests using a shared secret
+[auth]
+
+# token = 'abc123secret'
+
+# transitioning = false # Set `transitioning` to true to temporarily allow unauthenticated while rolling out authentication.
+
+# [tls]
+# certificate_path = '/home/git/cert.cert'
+# key_path = '/home/git/key.pem'
+
+
+# # Git settings
+[git]
+use_bundled_binaries = true
+catfile_cache_size = 10
+ignore_gitconfig = true
+
+[[storage]]
+name = "praefect-internal-0"
+path = "/gisia/coms/data/gitaly/repositories"
+
+
+# # You can optionally configure more storages for this Gitaly instance to serve up
+#
+# [[storage]]
+# name = "other_storage"
+# path = "/mnt/other_storage/repositories"
+#
+
+# # You can optionally configure Gitaly to output JSON-formatted log messages to stdout
+[logging]
+# # Optional: Set log level to only log entries with that severity or above
+# # One of, in order: debug, info, warn, errror, fatal, panic
+# # Defaults to "info"
+level = "info"
+format = "json"
+dir = "/services/gitaly/log/praefect-gitaly-0"
+
+# # Additionally exceptions from the Go server can be reported to Sentry
+# sentry_dsn = "https://<key>:<secret>@sentry.io/<project>"
+
+# # You can optionally configure Gitaly to record histogram latencies on GRPC method calls
+# [prometheus]
+# grpc_latency_buckets = [0.001, 0.005, 0.025, 0.1, 0.5, 1.0, 10.0, 30.0, 60.0, 300.0, 1500.0]
+
+[hooks]
+custom_hooks_dir = "/gisia/coms/data/gitaly/custom-hooks"
+
+[gitlab]
+url = "http+unix:///services/sockets/gisia.socket"
+secret_file = "/rails/.gitlab_shell_secret"
+
+[gitlab.http-settings]
+self_signed_cert = false
+
+# # You can adjust the concurrency of each RPC endpoint
+# [[concurrency]]
+# rpc = "/gitaly.RepositoryService/GarbageCollect"
+# max_per_repo = 1
+
+
+

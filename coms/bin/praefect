@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -e
+/gisia/coms/bin/gitalys/praefect --config  /gisia/config/coms/gitaly/praefect.config.toml sql-migrate
+/gisia/coms/bin/gitalys/praefect --config  /gisia/config/coms/gitaly/praefect.config.toml

@@ -1,0 +1,5 @@
+/.env
+/config/web/.gitlab_shell_secret
+/config/web/gitaly-0.praefect.toml
+/config/web/.gitlab_workhorse_secret
+/source

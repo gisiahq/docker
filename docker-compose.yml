@@ -1,0 +1,52 @@
+name: gisia
+
+services:
+  web:
+    image: gisia:latest
+    container_name: gisia-web
+    restart: always
+    command:
+      - bash
+      - -c
+      - >
+        /rails/bin/rails s &
+        /rails/bin/jobs start &
+        /gisia/coms/bin/workhorse &
+        /gisia/coms/bin/gisia-shell&
+        /gisia/coms/bin/gitaly&
+        /gisia/coms/bin/praefect&
+        wait
+    depends_on:
+      - pg
+    environment:
+      DATABASE_HOST: ${DATABASE_HOST:-pg}
+      DATABASE_PORT: ${DATABASE_PORT:-5432}
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-postgres}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      GISIA_PORT: ${GISIA_PORT:-8080}
+      GISIA_HOST: ${GISIA_HOST}
+    ports:
+      - "${WEB_PORT:-8080:8080}"
+      - "${SSH_PORT:-2626:22}"
+    volumes:
+      - ./coms:/gisia/coms
+      - ./config:/gisia/config
+  pg:
+    image: postgres:16.7-alpine
+    container_name: gisia-pg
+    restart: always
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+    volumes:
+      - ${PG_DATA_PATH:-./coms/data/postgres}:/var/lib/postgresql/data
+
+  redis:
+    image: redis:8.0-alpine
+    container_name: gisia-redis
+    restart: always
+    volumes:
+      - ${REDIS_DATA_PATH:-./coms/data/redis}:/data
+
+

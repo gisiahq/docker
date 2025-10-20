@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -e
+
+/gisia/coms/bin/gitlab-shells/gitlab-sshd -config-dir /gisia/config/coms/shell

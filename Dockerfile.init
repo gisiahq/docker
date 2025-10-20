@@ -1,0 +1,21 @@
+FROM alpine:3.20
+
+RUN addgroup -g 1010 rails && \
+    adduser -D -u 1010 -G rails rails
+
+COPY init /usr/local/bin/init
+RUN chmod +x /usr/local/bin/init
+
+WORKDIR /init
+
+COPY --chown=1010:1010 coms ./coms
+COPY --chown=1010:1010 config ./config
+COPY --chown=1010:1010 .env.example ./.env.example
+COPY --chown=1010:1010 docker-compose.yml ./docker-compose.yml
+
+RUN rm -f ./coms/data/gitaly/repositories/.keep && \
+    rm -f ./coms/data/redis/.keep && \
+    rm -f ./coms/data/postgres/.keep && \
+    chown -R 1010:1010 ./coms/data
+
+ENTRYPOINT ["/usr/local/bin/init"]

@@ -1,0 +1,26 @@
+Third-Party Components and Licenses
+===================================
+
+The following folders and files include third-party code.
+Please refer to the license references for the original terms.
+
+1. GitLab FOSS (MIT License)
+   License reference: .licenses/Gisia/others/gitlab-foss.dep.yml
+   Included folders:
+     - config/web
+     - config/redis
+     - config/coms/workhorse
+   Included files
+     - coms/bin/gitlab-workhorse
+
+2. Gitaly (MIT License)
+   License reference: .licenses/Gisia/others/gitlab-gitaly.dep.yml
+   Included folders:
+     - coms/bin/gitalys
+     - config/coms/gitaly
+2. Gitlab Shell (MIT License)
+   License reference: .licenses/Gisia/others/gitlab-shell.dep.yml
+   Included folders:
+     - coms/bin/gitlab-shells
+     - config/coms/shell
+
