@@ -1,30 +1,91 @@
-#!/bin/sh
+#!/usr/bin/env ruby
 
-set -e
+# frozen_string_literal: true
 
-TARGET_DIR="${1:-/output}"
+# ======================================================
+# Contains code from GitLab FOSS (MIT Licensed)
+# Copyright (c) GitLab Inc.
+# See .licenses/Gisia/others/gitlab-foss.dep.yml for full license
+#
+# Modifications and additions copyright (c) 2025 Liuming Tan
+# Licensed under AGPLv3 - see LICENSE file in this repository
+# ======================================================
 
-echo "Initializing Gisia configuration files to: $TARGET_DIR"
+require 'fileutils'
+require 'securerandom'
+require 'base64'
 
-if [ ! -d "$TARGET_DIR" ]; then
-  echo "Error: Target directory $TARGET_DIR does not exist"
+TARGET_DIR = ARGV[0] || '/output'
+
+def write_secret(path, length = 32)
+  bytes = SecureRandom.random_bytes(length)
+  File.open(path, 'w:BINARY', 0600) do |f|
+    f.chmod(0600)
+    f.write(Base64.strict_encode64(bytes))
+  end
+end
+
+puts "Initializing Gisia configuration files to: #{TARGET_DIR}"
+
+unless Dir.exist?(TARGET_DIR)
+  puts "Error: Target directory #{TARGET_DIR} does not exist"
   exit 1
-fi
+end
 
-echo "Copying coms directory..."
-cp -a /init/coms "$TARGET_DIR/"
+def copy_without_override(src, dest)
+  if File.directory?(src)
+    Dir.glob(File.join(src, '**', '*'), File::FNM_DOTMATCH).each do |item|
+      next if item.end_with?('.') || item.end_with?('..')
 
-echo "Copying config directory..."
-cp -a /init/config "$TARGET_DIR/"
+      relative_path = item.sub(src + '/', '')
+      dest_path = File.join(dest, relative_path)
 
-echo "Copying .env.example..."
-cp -a /init/.env.example "$TARGET_DIR/"
+      if File.directory?(item)
+        FileUtils.mkdir_p(dest_path) unless Dir.exist?(dest_path)
+      elsif !File.exist?(dest_path)
+        FileUtils.mkdir_p(File.dirname(dest_path)) unless Dir.exist?(File.dirname(dest_path))
+        FileUtils.cp(item, dest_path, preserve: true)
+      end
+    end
+  elsif !File.exist?(File.join(dest, File.basename(src)))
+    FileUtils.cp(src, dest, preserve: true)
+  end
+end
 
-echo "Copying docker-compose.yml..."
-cp -a /init/docker-compose.yml "$TARGET_DIR/"
+puts "Copying coms directory..."
+copy_without_override('/init/coms', File.join(TARGET_DIR, 'coms'))
 
-echo "Configuration files initialized successfully!"
-echo ""
-echo "Next steps:"
-echo "  1. Update and Copy .env.example to .env"
-echo "  3. Start the application with docker compose up"
+puts "Copying config directory..."
+copy_without_override('/init/config', File.join(TARGET_DIR, 'config'))
+
+puts "Copying .env.example..."
+copy_without_override('/init/.env.example', TARGET_DIR)
+
+puts "Copying docker-compose.yml..."
+copy_without_override('/init/docker-compose.yml', TARGET_DIR)
+
+shell_secret_path = File.join(TARGET_DIR, 'config/web/.gitlab_shell_secret')
+workhorse_secret_path = File.join(TARGET_DIR, 'config/web/.gitlab_workhorse_secret')
+
+unless File.exist?(shell_secret_path)
+  puts "Generating .gitlab_shell_secret..."
+  secret = SecureRandom.hex(16)
+  File.write(shell_secret_path, secret)
+end
+
+unless File.exist?(workhorse_secret_path)
+  puts "Generating .gitlab_workhorse_secret..."
+  write_secret(workhorse_secret_path, 32)
+end
+
+puts "Setting ownership to 1010:1010..."
+system("chown -R 1010:1010 #{TARGET_DIR}/coms") if Dir.exist?("#{TARGET_DIR}/coms")
+system("chown -R 1010:1010 #{TARGET_DIR}/config") if Dir.exist?("#{TARGET_DIR}/config")
+system("chown 1010:1010 #{TARGET_DIR}/.env.example") if File.exist?("#{TARGET_DIR}/.env.example")
+system("chown 1010:1010 #{TARGET_DIR}/docker-compose.yml") if File.exist?("#{TARGET_DIR}/docker-compose.yml")
+
+puts "\nConfiguration files initialized successfully!"
+puts ""
+puts "Next steps:"
+puts "  1. Update and Copy .env.example to .env"
+puts "  2. Start the application with docker compose up"

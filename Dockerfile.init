@@ -1,7 +1,7 @@
-FROM alpine:3.20
+FROM ruby:3.2.3
 
-RUN addgroup -g 1010 rails && \
-    adduser -D -u 1010 -G rails rails
+RUN groupadd -g 1010 rails && \
+    useradd -u 1010 -g 1010 -m -s /bin/bash rails
 
 COPY init /usr/local/bin/init
 RUN chmod +x /usr/local/bin/init
