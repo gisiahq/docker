@@ -29,6 +29,8 @@ services:
       - "${WEB_PORT:-8080:8080}"
       - "${SSH_PORT:-2626:22}"
     volumes:
+      - ./uploads:/rails/public/uploads
+      - ./builds:/rails/builds
       - ./coms:/gisia/coms
       - ./config:/gisia/config
   pg:

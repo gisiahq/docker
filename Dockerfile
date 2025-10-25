@@ -19,7 +19,7 @@ ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential locales ca-certificates tzdata \
     curl git unzip vim\
-    libjemalloc2 \
+    libjemalloc2 exiftool\
     libvips \
     postgresql-client \
     cmake \
