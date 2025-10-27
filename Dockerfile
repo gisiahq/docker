@@ -33,6 +33,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     && dpkg-reconfigure locales \
     && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
+RUN curl -fSL "https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.xz" | tar xJ -C /usr/local --strip-components=1 && \
+    npm install -g yarn
+
 # Install Ruby from source
 RUN curl -fSL "https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.3.tar.gz" | tar xz
 RUN cd ruby-3.2.3 && \
@@ -60,9 +63,15 @@ RUN bundle install && \
   rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
   bundle exec bootsnap precompile --gemfile
 
+# Install JavaScript dependencies and build assets
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
 # Copy application code
 COPY . .
 
+# Build JavaScript and CSS assets
+RUN yarn build
 
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
