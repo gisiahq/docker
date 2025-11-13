@@ -2,7 +2,7 @@ name: gisia
 
 services:
   web:
-    image: gisia/gisia:0.1.1
+    image: gisia/gisia:0.1.2
     container_name: gisia-web
     restart: always
     command:
