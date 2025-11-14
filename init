@@ -55,6 +55,9 @@ end
 puts "Creating uploads directory..."
 FileUtils.mkdir_p(File.join(TARGET_DIR, 'uploads'))
 
+puts "Creating shared directory..."
+FileUtils.mkdir_p(File.join(TARGET_DIR, 'shared'))
+
 puts "Creating builds directory..."
 FileUtils.mkdir_p(File.join(TARGET_DIR, 'builds'))
 
@@ -86,6 +89,7 @@ end
 
 puts "Setting ownership to 1010:1010..."
 system("chown -R 1010:1010 #{TARGET_DIR}/uploads") if Dir.exist?("#{TARGET_DIR}/uploads")
+system("chown -R 1010:1010 #{TARGET_DIR}/shared") if Dir.exist?("#{TARGET_DIR}/shared")
 system("chown -R 1010:1010 #{TARGET_DIR}/builds") if Dir.exist?("#{TARGET_DIR}/builds")
 system("chown -R 1010:1010 #{TARGET_DIR}/coms") if Dir.exist?("#{TARGET_DIR}/coms")
 system("chown -R 1010:1010 #{TARGET_DIR}/config") if Dir.exist?("#{TARGET_DIR}/config")

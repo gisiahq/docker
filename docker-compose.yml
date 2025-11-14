@@ -30,6 +30,7 @@ services:
       - "${SSH_PORT:-2626:22}"
     volumes:
       - ./uploads:/rails/public/uploads
+      - ./shared:/rails/shared
       - ./builds:/rails/builds
       - ./coms:/gisia/coms
       - ./config:/gisia/config
